@@ -4,6 +4,7 @@ from main1 import SpaceInvaderAI
 import random
 import cv2
 from model import DQN
+import copy
 
 class ExperienceReplay:
     def __init__(self, capacity):
@@ -116,17 +117,22 @@ if __name__ == '__main__':
     update_freq = 4
     prev_frame = []
     episodes = 10000
-    max_steps = 1000
+    # when training change max steps to 1000
+    max_steps = 100000
     ExReplayCapacity = 50000
     optimizer = torch.optim.RMSprop(model.parameters(), lr=learning_rate, eps=1e-6)
     frame_skip = 3
     all_rewards = []
     global_step = 0
-    epsilon = lambda step: np.clip(1-0.9*(step/1e5), 0.1, 1)
+    epsilon = lambda step: np.clip(1-0.9*(step/1e4), 0.1, 1)
     er = ExperienceReplay(ExReplayCapacity)
     # epoch = 0
     model, optimizer, epoch, loss = load_checkpoint(model, optimizer)
-
+    # since in training we are calculating labels for the model by calling the model it self, this makes the loss function very slow
+    # and also the training process to over come this we use target model which is just the copy of the model but with the delay of
+    # some steps
+    target_model = copy.deepcopy(model)
+    target_update_freq = 1000
 
     for episode in range(episodes):
         game = SpaceInvaderAI()
@@ -135,7 +141,9 @@ if __name__ == '__main__':
         episode_reward = 0
         step = 0
         while step < max_steps:
-            if random.random() < epsilon(global_step+epoch):
+            # when training use below if statement instead of 0.05
+            # if random.random() < epsilon(global_step+epoch):
+            if random.random() < 0.05:
                 action = random.randint(0, n_acts-1)
             else:
                 state = torch.tensor(obs).unsqueeze(0).float()
@@ -157,16 +165,14 @@ if __name__ == '__main__':
             er.add_step([obs, action, reward, next_obs, int(done)])
             obs = next_obs
 
-    
+                # uncomment to train the model
             # if global_step % update_freq == 0:
             #     state_data, action_data, reward_data, next_state_data, done_data = er.sample(32)
-            #     loss = model.train_on_batch(optimizer, state_data, action_data, reward_data, next_state_data, done_data)
-            #     # print('Model training...')
+            #     loss = model.train_on_batch(target_model, optimizer, state_data, action_data, reward_data, next_state_data, done_data)
             #     if global_step % 40 == 0:
-            #         # print('Model updated')
-            #         # save model
-            #         # print(epoch)
             #         save_checkpoint(global_step+epoch , model, optimizer, loss)
+            #     if global_step % target_update_freq == 0:
+            #         target_model = copy.deepcopy(model)
 
             
             global_step += 1

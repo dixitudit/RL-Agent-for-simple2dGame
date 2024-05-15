@@ -17,8 +17,8 @@ class DQN(nn.Module):
         x = self.fc(x)
         return x
     
-    def train_on_batch(self, optimizer, obs, acts, rewards, next_obs, terminals, gamma=0.99):
-        next_q_values = self.forward(next_obs)
+    def train_on_batch(self, target_model, optimizer, obs, acts, rewards, next_obs, terminals, gamma=0.99):
+        next_q_values = target_model.forward(next_obs)
         max_next_q = torch.max(next_q_values, dim=1)[0].detach()
 
         terminal_mod = 1 - terminals
