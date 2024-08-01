@@ -72,7 +72,7 @@ class Agent:
         else:
             return 0
 
-    # downsample the image to 300x300 and convert to grayscale and normalize
+    # downsample the image to 100x100 and convert to grayscale and normalize
     def filter_obs(self, obs):
         obs = cv2.resize(obs, (100, 100), interpolation=cv2.INTER_LINEAR)
         obs = cv2.cvtColor(obs, cv2.COLOR_BGR2GRAY)
