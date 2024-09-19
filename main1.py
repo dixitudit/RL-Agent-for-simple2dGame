@@ -24,7 +24,7 @@ fire = pygame.mixer.Sound('sounds\\bulletFire.wav')
 blast = pygame.mixer.Sound('sounds\\blast.wav')
 lostLife = pygame.mixer.Sound('sounds\\lifeLost.wav')
 music1 = pygame.mixer.music.load('sounds\\music.mp3')
-pygame.mixer.music.play(-1)
+# pygame.mixer.music.play(-1)
 clock = pygame.time.Clock()
 
 
@@ -128,7 +128,7 @@ class SpaceInvaderAI:
         state_array = np.frombuffer(state_image, dtype=np.uint8)
         state_array = state_array.reshape((game_height, game_width, 3))
 
-        # Display the game state image
+        # # Display the game state image
         # cv2.imshow('Game State', state_array)  # Show the game state image
         # cv2.waitKey(0)  # Wait indefinitely until a key is pressed
         # cv2.destroyAllWindows()  # Close the window when a key is pressed
